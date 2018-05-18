@@ -22,3 +22,7 @@
 
 + [BOM](https://github.com/DYZparker/notes/tree/master/BOM)
 
++ [Ajax](https://github.com/DYZparker/notes/tree/master/Ajax)
+
++ [Vue](https://github.com/DYZparker/notes/tree/master/Vue)
+
