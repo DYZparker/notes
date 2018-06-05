@@ -1,8 +1,8 @@
-#说明
+# 说明
 
 此文件夹记录在XMind软件下制作的思维导图笔记
 
-##目录
+## 目录
 
 + [Markdown](https://github.com/DYZparker/notes/tree/master/Markdown)
 
@@ -25,4 +25,6 @@
 + [Ajax](https://github.com/DYZparker/notes/tree/master/Ajax)
 
 + [Vue](https://github.com/DYZparker/notes/tree/master/Vue)
+
++ [跨域](https://github.com/DYZparker/notes/tree/master/跨域)
 
