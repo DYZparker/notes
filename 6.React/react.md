@@ -1,4 +1,4 @@
-## 核心概念
+##   核心概念
 
 - DOM：浏览器中的概念，用`JS`对象来表示页面上的元素，并提供了操作DOM对象的API
 - 虚拟DOM：
@@ -60,8 +60,9 @@
   - 运行`npm i babel-preset-env babel-preset-stage-0 -D`
 
 - 安装能够识别转换`jsx`语法的包
-  - `npm i babel-preset-react -D`
-
+  
+- `npm i babel-preset-react -D`
+  
 - 添加`.babelrc`配置文件
 
   ```
@@ -362,7 +363,14 @@ class MyComponent extends React.Component {
   export default () => <LoadableComponent />
   ```
 
-  
+
+- 在调用组件的app.js里更改调用异步组件
+
+  ```js
+  import Xxxx from './xxx/loadable.js'
+  ```
+
+- 包装后原组件从`router`引用组件信息会报错，需从`react-router-dom`引入`withRouter`方法，并在导出时`withRouter(组件)`
 
 ## 过渡动画
 
@@ -515,6 +523,8 @@ class MyComponent extends Component {
 
 #### `immutable`模块
 
+*详情见Other文件夹immutable扩展*
+
 ```js
 import { fromJS } from 'immutable'
 const defaultState = fromJS({
@@ -531,8 +541,9 @@ export default (state = defaultState, action) => {
 
 - 使`state`变为不可改变的`immutable`对象
 - 获取`state`：
-  - `xxx: state.get('键')`
-
+  
+- `xxx: state.get('键')`
+  
 - 取出的对象需要`const newobj = obj.toJS()`才能使用
 
 - 存入对象前需要 `const newobj : fromJS(obj)`
@@ -661,7 +672,7 @@ export default (state = defaultState, action) => {
 
   ```js
   import {connect} from 'react-redux'
-  export default connect(mapStateToProps ,mapDispatchToProps )(组件类名)
+  
   class 组件类名 extends Component {
       render(){
           return(
@@ -688,8 +699,9 @@ export default (state = defaultState, action) => {
           }
       }
   }
-  ```
-
+  export default connect(mapStateToProps ,mapDispatchToProps )(组件类名)
+```
+  
   
 
 ## `antd`
