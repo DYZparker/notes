@@ -54,7 +54,9 @@
 ##### `JSX`语法
 
 - 符合XML规范的`JS`，在`JS`中混合写入类似于HTML的语法
+
 - 本质还是在运行的时候被转换成了`React.createElement`形式来执行
+
 - 安装`babel`插件
   - 运行`npm i babel-croe babel-loader babel-plugin-transform-runtime -D`
   - 运行`npm i babel-preset-env babel-preset-stage-0 -D`
@@ -87,9 +89,19 @@
   
 
 - 在`JSX`中变量、数组和对象用{}包裹（数组和对象里面是标签）
+
 - 用`forEach/map/for`循环的元素要加上`key`属性
+
 - 注释推荐使用`{/**/}`
+
 - `JSX`中的元素添加类名需要用`className`来代替`class；htmlFor`来代替`label`标签的`for`属性
+
+- 在标签的内容中不转译
+
+  ```
+  <li dangerouslySetInnerHtml={__html:item}></li>
+  ```
+
 - 当`JSX`编译时，遇到`<`就把它当做HTML代码编译，遇到`{}`就把当中的代码当做`JS`编译
 
 ##### `css`配置
@@ -199,7 +211,7 @@
 2. 在最外层组件中
 
    ```jsx
-   import { BrowserRouter, Route, Switch } from 'react-router-dom'
+   import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
    <BrowserRouter>
        <Switch>
            <Route path='' exact component={组件名1}></Route>
@@ -221,7 +233,25 @@
      </Link>
      ```
 
-     
+   
+   - 标签式重定向
+   
+     ```js
+     <Redirect to='/' />
+     ```
+   
+   - 编程式重定向
+   
+     ```
+     this.props.history.push('/')
+     ```
+   
+3. 获取路由信息
+
+   - `this.props.location`匹配``
+   - `this.props.match.params.id`匹配`/:id`
+
+
 
 ## 组件
 
@@ -268,13 +298,13 @@ export default App
   - `propTypes`:
     - 是一个对象，可以规定父组件传来的值的类型
     - 引入：`import PropTypes from 'prop-types'`
-    - 使用：`组件.propTypes = {name: PropTypes.string}`
+    - 使用：`组件.propTypes = {propsname: PropTypes.string}`
     - 类型：`array, bool, number, string, func, object, symbol`
     - 后面还可继续添加 `isRequired`
 
   - `defaultProps`:
     - 是一个对象，给父组件传的值定一个默认值
-    - 使用：`组件.defaultProps = {name:'Stranger'}`
+    - 使用：`组件.defaultProps = {propsname:'Stranger'}`
 
 #### 绑定事件
 
@@ -292,7 +322,7 @@ show (arg) {....}
 - 修改`state`数据用`this.setState({键值对}, callback)`
   - `setState`只会把对应的state状态更新不会覆盖其他的state状态
   - `setState`是异步的，如想立即拿到更新后的状态值就在callback中拿
-  - 常用：`this.setState( (prevState) => {...} ) //prevState表示this.state`
+  - 常用：`this.setState( {}, (prevState) => {...} ) //prevState表示this.state`
 
 - 文本框的`value`值绑定到`state`不提供`onChagne`处理函数的话，将会是一个只读的文本框
   - 两种方法拿到文本框的值
@@ -301,21 +331,31 @@ show (arg) {....}
 
 #### `ref`
 
-```jsx
-class MyComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.myRef = React.createRef();
-  }
-  render() {
-    return <div ref={this.myRef} />;
-  }
-}
-```
+- 在组件中定义
 
-- `this.myRef.current`
-- 然后使用`current`属性，即可获得当前元素
-- 自定义组件接口是`innerRef`而不是`ref`
+  ```js
+  class MyComponent extends React.Component {
+    constructor(props) {
+      super(props);
+      this.myRef = React.createRef();
+    }
+    render() {
+      return <div ref={this.myRef} />
+    }
+  }
+  ```
+
+  - `this.myRef.current`
+  - 然后使用`current`属性，即可获得当前元素
+  - 自定义组件接口是`innerRef`而不是`ref`
+
+- 在标签中定义
+
+  ```
+  <input ref={(input) => {this.input = input}}
+  ```
+
+  - 使用`this.input`引用
 
 #### 生命周期函数
 
@@ -342,6 +382,22 @@ class MyComponent extends React.Component {
 - 组件销毁阶段：
   - `componentWillUnmount`
     - 当组件即将从页面中剔除时执行
+
+#### 渲染优化
+
+问题：当父组件重新渲染时，子组件数据变不变化都要跟着重新渲染
+
+解决：利用生命周期函数判断props变没变化来决定子组件渲染与否
+
+```js
+shouldComponentUpdate(nextProps, nextState) {
+	if(nextProps.content !== this.props.content) {
+		return true
+	}else {
+	 	return false
+	}
+}
+```
 
 #### 异步组件
 
@@ -377,14 +433,26 @@ class MyComponent extends React.Component {
 - 通过`CSS`类标签实现
 
   ```CSS
-  .类 {
+  .show {
       opacity: 1;
+      transition: all  1s  ease-in
+  }
+  .hide {
+      opacity: 0;
       transition: all  1s  ease-in
   }
   ```
 
   ```CSS
-  .类 {
+  .show {
+      animation: show-item  1s  ease-in  forwards  //forwards参数让动画完后保持最后一帧的状态
+  }
+  @keyframes  show-item {
+      0% {...}
+      50% {...}
+      100% {...}
+  }
+  .hide {
       animation: hide-item  1s  ease-in  forwards  //forwards参数让动画完后保持最后一帧的状态
   }
   @keyframes  hide-item {
@@ -400,32 +468,39 @@ class MyComponent extends React.Component {
 
     ```jsx
     import {CSSTransition} from 'react-transition-group'
-    <CSSTransition in={this.state.show} timeout={1000} className='fade' 钩子={函数}>
+    <CSSTransition
+    	in={this.state.show}	//动画触发开关，在map渲染中去掉
+    	timeout={1000}	//动画时间
+    	className='fade'	//css样式前缀
+  	appear={true}	//已有的第一次出现也添加动画，可选
+    	unmountOnExit	//隐藏时直接从dom删除，可选
+    	钩子={函数}	//
+    >
         <组件>
     </CSSTransition>
     ```
-
+  
     ```css
     //css中配置
-    .fade-enter {}
+  .fade-enter {}
     .fade-enter-active {}
-    .fade-enter-done {}
+  .fade-enter-done {}
     .fade-exit {}
     .fade-exit-active {}
     .fade-exit-done {}
     ```
-
+  
   - 一组数据共有的动画
-
+  
     ```JSX
-    import {CSSTransition, TransitionGroup} from 'react-transition-group'
+  import {CSSTransition, TransitionGroup} from 'react-transition-group'
     <TransitionGroup>
         <CSSTransition>
             <组件>
         </CSSTransition>
     </TransitionGroup>
     ```
-
+  
     
 
 ## `Redux`
@@ -444,7 +519,8 @@ class MyComponent extends Component {
     constructor(props) {
         super(props)
         this.state = store.getState()
-        store.subscribe(改变函数)    //只要store发生改变就会执行改变函数
+        this.storechange = this.storechange.bind(this)
+        store.subscribe(storechange)    //只要store发生改变就会执行改变函数
     }
     render (){
         return <div onClick={事件函数}></div>
@@ -453,7 +529,7 @@ class MyComponent extends Component {
         const action = 函数名(参数)    //函数在actionCreators.js里
         store.dispatch(action)
         }
-    改变函数(){
+    storechange(){
         this.setState(store.getState())    //将store中的改变更新到组件的state
     }
 }
@@ -592,6 +668,19 @@ export default (state = defaultState, action) => {
   )
   ```
 
+  如包含多个中间件（redux浏览器插件），就是用增强函数
+
+  ```js
+  import {createStore, applyMiddleware, compose} from 'redux';
+  import thunk from 'redux-thunk'
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}) : compose
+  const enhancer = composeEnhancers(applyMiddleware(thunk))
+  const store = createStore(
+      reducer,
+      enhancer
+  )
+  ```
+
 - 在`store/actionCreators.js`内应用
 
   ```js
@@ -660,7 +749,7 @@ export default (state = defaultState, action) => {
 
   ```js
   import {Provider} from 'react-redux';
-  import store from './store';
+  import store from './store';	//提供器
   const App = (
       <Provider store={store}>
           <组件>
@@ -671,7 +760,7 @@ export default (state = defaultState, action) => {
 - 在组件中
 
   ```js
-  import {connect} from 'react-redux'
+  import {connect} from 'react-redux'		//连接器
   
   class 组件类名 extends Component {
       render(){
@@ -700,20 +789,18 @@ export default (state = defaultState, action) => {
       }
   }
   export default connect(mapStateToProps ,mapDispatchToProps )(组件类名)
-```
-  
-  
+  ```
+
+
 
 ## `antd`
 
 - 全局引入
 
-  ```js
+  ```
   import 'antd/dist/antd.css'
   import {组件} from 'antd'
   ```
-
-  
 
 - 按需引入
 
@@ -792,3 +879,215 @@ export default (state = defaultState, action) => {
   ```
 
   
+
+## 高阶组件
+
+
+
+
+
+
+
+## React Hooks
+
+
+
+#### useState
+
+- 用函数的形式代替原来的继承类的形式，并且使用预函数的形式管理`state`，不再使用类的形式定义组件
+
+- 原始写法：
+
+  ```js
+  import React, { Component } from 'react'
+  class Example extends Component {
+      constructor(props) {
+          super(props);
+          this.state = { count:0 }
+      }
+      render() { 
+          return (
+              <div>
+                  <p>You clicked {this.state.count} times</p>
+                  <button onClick={this.addCount.bind(this)}>Chlick me</button>
+              </div>
+          );
+      }
+      addCount(){
+          this.setState({count:this.state.count+1})
+      }
+  }
+  export default Example;
+  ```
+
+- React Hooks写法：
+
+  ```js
+  import React, { useState } from 'react'
+  function Example(){
+      const [ count , setCount ] = useState(0);	//数组解构
+      return (
+          <div>
+              <p>You clicked {count} times</p>
+              <button onClick={()=>{setCount(count+1)}}>click me</button>
+          </div>
+      )
+  }
+  export default Example;
+  ```
+
+#### useEffect
+
+- 代替常用生命周期函数
+
+- 代替`componentDidMount`和`componentDidUpdate`
+
+  - 首次渲染和之后的每次渲染都会调用一遍`useEffect`函数 
+  -  `useEffect`函数时异步执行的，而`componentDidMonut`和`componentDidUpdate`中的代码都是同步执行
+
+  ```js
+  import React, { useEffect } from 'react'
+  useEffect(() => {
+      console.log(绑定组件一开始要做的事件)	//componentDidMonut/componentDidUpdate
+  })
+  ```
+
+- 代替`componentWillUnmount`
+
+  ```js
+  import React, { useEffect } from 'react'
+  useEffect(() => {
+      console.log(绑定组件一开始要做的事件)	//componentDidMonut/componentDidUpdate
+      return () => {
+          console.log(组件销毁时解除绑定的事件)	//componentWillUnmount
+      }
+  }, [])	//数组中的值变化才解绑，为空表示组件销毁时才解绑
+  ```
+
+#### useContext
+
+- 作用是对它所包含的组件树提供全局共享数据的一种技术
+
+- 父组件：
+
+  ```js
+  import React, { useState , createContext } from 'react'
+  import Child from './Child'
+  const CountContext = createContext()
+  function Parent(){
+      const [ count , setCount ] = useState(0);
+      return (
+          <div>
+              <p>You clicked {count} times</p>
+              <button onClick={()=>{setCount(count+1)}}>click me</button>
+              <CountContext.Provider value={count}>
+                  <Child></Child>
+              </CountContext.Provider>
+          </div>
+      )
+  }
+  export default Parent
+  ```
+
+- 子组件：
+
+  ```js
+  import React, { useState , createContext , useContext } from 'react'
+  function Child(){
+      const count = useContext(CountContext)  //一句话就可以得到count
+      return (<h2>{count}</h2>)
+  }
+  export default Child
+  ```
+
+#### useReducer
+
+- daima
+
+  ```js
+  import React, { useReducer } from 'react'
+  function ReducerDemo(){
+      const [ count , dispatch ] =useReducer((state,action)=>{
+          switch(action){
+              case 'add':
+                  return state+1
+              case 'sub':
+                  return state-1
+              default:
+                  return state
+          }
+      },0)
+      return (
+         <div>
+             <h2>现在的分数是{count}</h2>
+             <button onClick={()=>dispatch('add')}>Increment</button>
+             <button onClick={()=>dispatch('sub')}>Decrement</button>
+         </div>
+      )
+  }
+  export default ReducerDemo
+  ```
+
+-  使用`useContext`和`useReducer`是可以实现类似`Redux`的效果 
+
+
+
+#### useMemo
+
+
+
+
+
+#### useRef
+
+
+
+
+
+
+
+#### useCallback 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 问答
+
+1. react单向数据流
+   - 父组件向子组件传值是只读的，子组件不可以改变 
+2. react函数式编程
+   - 可以清晰地看到函数的结构和方法
+   - 方便测试
