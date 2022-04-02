@@ -1,4 +1,4 @@
-## 第一次建站遇到的坑
+## 建站遇到的坑
 
 #### 购买云服务器
 
@@ -142,7 +142,7 @@ MongoDB默认将数据文件存储在`/var/lib/mongo`目录，默认日志文件
  重启命令:
 
 ```
-`service mongod stop`
+`service mongod restart`
 ```
 
 查看mongoDB是否启动成功:
@@ -227,7 +227,6 @@ $ pm2 stop bin/www 停止pm2服务
 
 ![img](https://upload-images.jianshu.io/upload_images/615807-1560d7993bbfc87e.png?imageMogr2/auto-orient/strip%7CimageView2/2)
 
-
 `$ pm2 logs` 显示所有进程日志
 `$ pm2 stop all` 停止所有进程
 `$ pm2 restart all` 重启所有进程
@@ -309,3 +308,75 @@ $ pm2 stop bin/www 停止pm2服务
 ![img](https://upload-images.jianshu.io/upload_images/615807-241b23ec76dcda25.png?imageMogr2/auto-orient/strip%7CimageView2/2)
 
 通过`npm run pm2`来启动。
+
+
+
+## 云服务器文件地址
+
+1. 服务器项目放在/home/serve下，修改服务器项目文件后需要重新运行pm2 reload/restart all
+2. 前端项目放在
+3. 前端项目api请求代理到koa项目时，包装的request需添加'pro-api'，并再nignx配置中添加
+4. 修改
+
+
+
+## 个人博客keng
+
+#### next.js
+
+- 脚手架是npx  create-next-app 项目名称  
+
+- 不像vue和react自动打包有index.html文件
+
+- 设置代理失败
+
+- next.js不能直接引入.md文件，需安装@blunck/next-md中间件并在next.config.js配置
+
+  ```js
+  const withCss = require('@zeit/next-css')	//另一个中间件
+  const withMarkdown = require('@blunck/next-md')()
+  
+  if(typeof require !== 'undefined'){
+      require.extensions['.css']=file=>{}
+  }
+  
+  // module.exports = withCss({})		//一个中间件时
+  module.exports = withMarkdown(withCss({}))		//两个中间件时
+  ```
+
+  
+
+- 是
+
+
+
+#### egg.js
+
+- 安装egg-mysql失败
+
+
+
+#### koa2.js
+
+- 安装koa2-cors设置代理
+
+  ```js
+  //app.js
+  app.use(async (ctx, next) => {
+    ctx.set("Access-Control-Allow-Origin", "http://localhost:9000")
+    ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
+    ctx.set("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS")
+  })
+  ```
+
+  ```js
+  //plugin.js
+  exports.cors = {
+    enable: true,
+    package: 'koa2-cors'
+  }
+  ```
+
+  
+
+- 2

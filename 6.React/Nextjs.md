@@ -1,9 +1,9 @@
-
+ Next.js 是一个轻量级的 React 服务端渲染应用框架 
 
 ## 区别
 
-- 前端框架的SPA（单页应用），首屏加载过慢，不能SEO（搜索引擎搜索）
-- 服务端框架的SSR（服务端渲染）
+- 前端框架的`SPA`（单页应用），首屏加载过慢，不能`SEO`（搜索引擎搜索）
+- 服务端框架的`SSR`（服务端渲染）
 
 
 
@@ -11,15 +11,15 @@
 
 #### 手动搭建
 
-1. 创建项目文件并`npm init`
+1. 创建项目文件并`npm init -y`
 
-2. 安装`react`和react `dom`和`next`
+2. 安装`react`和`react dom`和`next`
 
 3. `package.json`中配置
 
    ```
    "scripts": {
-   	"dev": "next dev",
+   	"dev": "next",
    	"build": "next build",
    	"start": "bext start"
    }
@@ -30,7 +30,7 @@
 #### 脚手架搭建
 
 1. 全局安装`create-next-app`
-2. `npm create-next-app 项目名称`
+2. `npx create-next-app 项目名称`
 
 #### pages
 
@@ -39,7 +39,7 @@
 - `index.js`
 
   ```js
-  import React from react'
+  import React from 'react'
   import Link from 'next/link'
   export default () => {
   	<>
@@ -82,7 +82,8 @@ export default ()=>(
 #### 编程式导航
 
 ```js
-import Router from 'next/router'export default ()=>(
+import Router from 'next/router'
+export default ()=>(
     <>
          <div>
         	 <button onClick={()=>{Router.push('/jspangA')}}>去JspangA页面</button>
@@ -103,7 +104,7 @@ import Router from 'next/router'export default ()=>(
     return(
       <>
         <div>
-          <Link href="/xiaojiejie?name=标签名"><a>标签</a></Link>
+          <Link href="/Zujian?name=标签名"><a>标签</a></Link>
         </div>
       </>
     )
@@ -176,6 +177,8 @@ import Router from 'next/router'export default ()=>(
 ## 获取远端数据
 
 - 在`getInitialProps`中用`Axios`获取
+
+-  `getInitialProps`不能使用在子组件中。只能使用在`pages`页面中 
 
   ```js
   import withRouter from 'next/router'
@@ -322,3 +325,4 @@ export default 组件
   ```
 
   
+

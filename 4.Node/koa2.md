@@ -1,15 +1,9 @@
-
-
-
-
-
-
-
+   
 
 ## 创建项目
 
-1. 创建项目文件并npm init
-2. 安装koa
+1. 创建项目文件并npm init然后安装koa
+2. 全局安装koa-generator，然后koa2 my-project
 
 #### index.js
 
@@ -37,7 +31,7 @@ app.listen(3000)
       let url =ctx.url;	//"/?user=xxx&age=18"
       let request =ctx.request;
       let req_query = request.query;	//格式化好的参数对象{"user":"xxx","age":"18"}
-      let req_querystring = request.querystring;	//请求字符串"user=xxx&age=18"
+      let req_querystring = request.querystring;	//获取字符串"user=xxx&age=18"
   });
   app.listen(3000,()=>{
       console.log('[demo] server is starting at port 3000');
@@ -46,18 +40,35 @@ app.listen(3000)
 
 -  从ctx接收
 
-  ```js
-  const Koa = require('koa');
-  const app = new Koa();
-  app.use(async(ctx)=>{
-      let url =ctx.url;
-      let ctx_query = ctx.query;	//等同于ctx.request.query
-      let ctx_querystring = ctx.querystring;	//等同于ctx.request.querystring
-  });
-  app.listen(3000,()=>{
-      console.log('[demo] server is starting at port 3000');
-  });
-  ```
+  - ?a=b（路由传值）
+  
+    ```js
+    const Koa = require('koa');
+    const app = new Koa();
+    app.use(async(ctx)=>{
+        let url =ctx.url;
+        let ctx_query = ctx.query;	//等同于ctx.request.query （推荐方法）
+        let ctx_querystring = ctx.querystring;	//等同于ctx.request.querystring
+    });
+    app.listen(3000,()=>{
+        console.log('[demo] server is starting at port 3000');
+    });
+    ```
+  
+  - /123（动态路由）
+  
+    ```js
+    const Koa = require('koa');
+    const app = new Koa();
+    app.use(async(ctx)=>{
+        let url =ctx.url;
+        let ctx_query = ctx.params;	//等同于ctx.request.params	（推荐方法）
+        let ctx_querystring = ctx.querystring;	//等同于ctx.request.querystring
+    });
+    app.listen(3000,()=>{
+        console.log('[demo] server is starting at port 3000');
+    });
+    ```
 
 #### POST请求
 
@@ -89,16 +100,14 @@ app.listen(3000)
     function parseQueryStr(queryStr){
         let queryData={};
         let queryStrList = queryStr.split('&');
-        console.log(queryStrList);
         for( let [index,queryStr] of queryStrList.entries() ){
             let itemList = queryStr.split('=');
-            console.log(itemList);
             queryData[itemList[0]] = decodeURIComponent(itemList[1]);
         } 
         return queryData
     }
     ```
-
+  
 - 使用中间件
 
   - 安装`koa-bodyparser`
@@ -128,6 +137,23 @@ app.listen(3000)
     ```
 
     
+
+## 错误处理
+
+- 一般koa中的错误
+
+  - 404：当请求资源找不到，或者没有通过ctx.body返回时，由koa自动返回
+  - 500：运行时错误
+  - 手动抛出：通过ctx.throw手动抛出
+
+- 使用koa-json-erorr
+
+  ```js
+  const error = require('koa-json-error')
+  app.use(error())
+  ```
+
+  
 
 ## 路由
 
@@ -181,7 +207,7 @@ app.listen(3000);
 
 - 引入使用
 
-  ```
+  ```js
   const Koa = require('koa');
   const Router = require('koa-router');	//引入中间件
   const app = new Koa();
@@ -245,6 +271,12 @@ app.listen(3000);
       console.log('[demo] server is starting at port 3000');
   });
   ```
+
+## 中间件
+
+- 洋葱模型
+  - koa和egg一样，在访问所以路由之前先经过中间件，再由中间件中的next()往下级顺级跳转，直到路由然后再往上逆级 返回中间件
+- 啊
 
 ## cookie
 
@@ -326,13 +358,36 @@ app.listen(3000,()=>{
 })
 ```
 
+## session
+
+- 安装koa-session
+
+  ```js
+  const session = require('koa-session')
+  
+  app.keys = ['some secret hurr']
+  const CONFIG = {
+  	key: 'koa:sess',	//cookie key(default is koa:sess)
+      maxAge:1000*60*60*24,   // cookie有效时长
+      httpOnly:false,  // 是否只用于http请求中获取
+      overwrite:false,  // 是否允许重写
+      signed: true,	//签名默认true
+      rolling: false,		//每次请求强行设置cookie，将重置cookie过期时间
+      renew: false	//renew session when session is nearly expired
+  }
+  
+  app.use(session(CONFIG, app))
+  ```
+
+  
+
 ## 页面模板
 
 - 安装 koa-views中间件 
 
-- 安装ejs模板引擎
+- ejs模板引擎
 
-- 编写inde.ejs模板
+  - 编写inde.ejs模板
 
   ```ejs
   <!DOCTYPE html>
@@ -347,7 +402,43 @@ app.listen(3000,()=>{
   </html>
   ```
 
-- 配置并渲染
+  - 模板语法：
+
+    - 循环：
+
+      ```
+      <ul>
+          <% for(let i=0;i<list.length;i++) { %>
+              <li><%= list[i] %></li>
+          <% } %>
+      </ul>
+      ```
+
+    - 判断：
+
+      ```
+      <% if(true) { %>
+      	<div>true</div>
+      <% }else { %>
+      	<div>false</div>
+      <% } %>
+      ```
+
+    - 引入其他ejs模块
+
+      ```
+      <% include public/header.ejs &>
+      ```
+
+    - 绑定html数据
+
+      ```
+      //上一级传参let content = "<h2>字符串</h2>"
+      <%= content %>		//输出原样 <h2>字符串</h2>
+      <%- content %>		//输出h2格式的 字符串
+      ```
+
+  - 配置并渲染
 
   ```js
   const Koa = require('koa')
@@ -356,7 +447,7 @@ app.listen(3000,()=>{
   const app = new Koa()
   // 加载模板引擎
   app.use(views(path.join(__dirname, './view'), {
-    extension: 'ejs'
+    extension: 'ejs'	//应用ejs模板，或者换作{map:{html:'ejs'}}应用html模板
   }))
    
   app.use( async ( ctx ) => {
@@ -370,6 +461,62 @@ app.listen(3000,()=>{
       console.log('[demo] server is starting at port 3000');
   })
   ```
+
+- art-template模板引擎（速度快）
+
+  - 安装
+
+    ```
+    npm i art-template
+    npm i koa-art-template
+    ```
+
+  - 模板语法（两种都可以）
+
+    - {{}}    //参照express的art-template模板引擎
+    - <%=  %>
+
+  - 配置并渲染
+
+    ```js
+    const Koa = require('koa')
+    const render = require('art-template')	//引入中间件
+    const path = require('path')
+    const app = new Koa()
+    // 配置模板引擎
+    render(app, {
+        root: path.join(__dirname, 'view'),		//视图的位置
+        extname: '.art',		//后缀名
+        debug: process.env.NODE_ENV !== 'production'		//是否开启调试模式
+    })
+     
+    app.use( async ( ctx ) => {
+      let title = 'hello koa2'
+      await ctx.render('index', {	//传递参数
+        title
+      })
+    })
+     
+    app.listen(3000,()=>{
+        console.log('[demo] server is starting at port 3000');
+    })
+    ```
+
+    
+
+- 公共数据
+
+```
+app.use(async (ctx, next) => {		//配置一个中间件
+    ctx.state = {				//把公共数据以对象方式写入ctx.state
+        session: this.session,
+        title: 'app'
+    }
+    await next()		//继续向下匹配路由
+})
+```
+
+然后在所以模板里都可以调用<% session %>和<% title %>了
 
 ## 公开静态资源
 

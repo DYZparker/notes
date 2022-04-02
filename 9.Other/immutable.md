@@ -391,7 +391,7 @@ List([]).setSize(2).toJS() //[undefined,undefined]
 
 作用：浅合并，新数据与旧数据对比，旧数据中不存在的属性直接添加，就数据中已存在的属性用新数据中的覆盖
 
-###### mergrWith
+###### mergeWith
 
 作用：自定义浅合并，可自行设置某些属性的值
 
@@ -407,7 +407,7 @@ List([]).setSize(2).toJS() //[undefined,undefined]
 
 作用：对深层数据进行深合并
 
-###### mergrDeepWith
+###### mergeDeepWith
 
 作用：自定义深合并，可自行设置某些属性的值
 

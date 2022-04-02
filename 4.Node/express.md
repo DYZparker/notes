@@ -38,8 +38,8 @@ app.use('/X', function(req, res, next){})		//匹配以/X开头的请求
 - get和post请求
 
   ```js
-  app.get(',/X', function(req, res, next){})
-  app.post(',/X', function(req, res, next){})
+  app.get('./X', function(req, res, next){})
+  app.post('./X', function(req, res, next){})
   ```
 
 - post数据解析

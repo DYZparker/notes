@@ -1,18 +1,12 @@
 # 序言
 
-Nginx是lgor Sysoev为俄罗斯访问量第二的rambler.ru站点设计开发的。从2004年发布至今，凭借开源的力量，已经接近成熟与完善。
-
 Nginx功能丰富，可作为HTTP服务器，也可作为反向代理服务器，邮件服务器。支持FastCGI、SSL、Virtual Host、URL Rewrite、Gzip等功能。并且支持很多第三方的模块扩展。
 
 Nginx的稳定性、功能集、示例配置文件和低系统资源的消耗让他后来居上，在全球活跃的网站中有12.18%的使用比率，大约为2220万个网站。
 
-牛逼吹的差不多啦，如果你还不过瘾，你可以百度百科或者一些书上找到这样的夸耀，比比皆是。
-
 ## Nginx常用功能
 
-1、Http代理，反向代理：作为web服务器最常用的功能之一，尤其是反向代理。
-
-这里我给来2张图，对正向代理与反响代理做个诠释，具体细节，大家可以翻阅下资料。
+1、Http代理，反向代理：作为web服务器最常用的功能之一，尤其是反向代理。 
 
 ![img](https://images2015.cnblogs.com/blog/398358/201602/398358-20160202133724350-1807373891.jpg)
 
@@ -196,3 +190,245 @@ location /proxypath/ {
 ```
 
 访问`http://hostname/proxypath/page.html`时将由地址`http://hostname/resourcepath/page.html`页面代理请求
+
+
+
+
+
+# 基本概念
+
+- 特点：占有内存少，并发能力强，能承受高负载
+- 处理静态文件，索引文件以及自动索引，打开文件描述符缓冲
+- 无缓存的反向代理，简单的负载均衡和容错
+- 模块化的结构
+- 支持SSL和TLSSNI
+
+# 安装
+
+- 安装依赖
+
+  ```
+  yum -y install gcc zlib zlib-devel pcre-devel openssl openssl-devel
+  ```
+
+  
+
+- 安装nginx
+
+- 启动服务器：./nginx
+
+- 查看进程：ps -ef|grep nginx
+
+- 查看防火墙端口：firewall-cmd --list-all
+
+- 开放防火墙端口：sudo firewall-cmd --add-port=80/tcp --permanent
+
+- 重启防火墙：firewall-cmd -reload
+
+# 常用命令
+
+- 打开所在文件夹：cd /usr/local/nginx/sbin
+- 查看版本号：./nginx -v
+- 启动nginx：./nginx
+- 关闭nginx：./nginx -s  stop
+- 重新加载nginx：./nginx -s reload
+
+# 配置文件
+
+- 位置：/usr/local/nginx/conf/nginx.conf
+
+  ```
+  ########### 每个指令必须有分号结束。#################
+  #user administrator administrators;  #配置用户或者组，默认为nobody nobody。
+  #worker_processes 2;  #允许生成的进程数，默认为1
+  #pid /nginx/pid/nginx.pid;   #指定nginx进程运行文件存放地址
+  error_log log/error.log debug;  #制定日志路径，级别。这个设置可以放入全局块，http块，server块，级别以此为：debug|info|notice|warn|error|crit|alert|emerg
+  events {
+      accept_mutex on;   #设置网路连接序列化，防止惊群现象发生，默认为on
+      multi_accept on;  #设置一个进程是否同时接受多个网络连接，默认为off
+      #use epoll;      #事件驱动模型，select|poll|kqueue|epoll|resig|/dev/poll|eventport
+      worker_connections  1024;    #最大连接数，默认为512
+  }
+  http {
+      include       mime.types;   #文件扩展名与文件类型映射表
+      default_type  application/octet-stream; #默认文件类型，默认为text/plain
+      #access_log off; #取消服务日志    
+      log_format myFormat '$remote_addr–$remote_user [$time_local] $request $status $body_bytes_sent $http_referer $http_user_agent $http_x_forwarded_for'; #自定义格式
+      access_log log/access.log myFormat;  #combined为日志格式的默认值
+      sendfile on;   #允许sendfile方式传输文件，默认为off，可以在http块，server块，location块。
+      sendfile_max_chunk 100k;  #每个进程每次调用传输数量不能大于设定的值，默认为0，即不设上限。
+      keepalive_timeout 65;  #连接超时时间，默认为75s，可以在http，server，location块。
+  
+      upstream mysvr {   
+        server 127.0.0.1:7878;
+        server 192.168.10.121:3333 backup;  #热备
+      }
+      error_page 404 https://www.baidu.com; #错误页
+      server {
+          keepalive_requests 120; #单连接请求上限次数。
+          listen       4545;   #监听端口
+          server_name  127.0.0.1;   #监听地址       
+          location  ~*^.+$ {       #请求的url过滤，正则匹配，~为区分大小写，~*为不区分大小写。
+             #root path;  #根目录
+             #index vv.txt;  #设置默认页
+             proxy_pass  http://mysvr;  #请求转向mysvr 定义的服务器列表
+             deny 127.0.0.1;  #拒绝的ip
+             allow 172.18.5.54; #允许的ip           
+          } 
+      }
+  }
+  ```
+
+  
+
+- 组成
+
+  - 全局块：影响服务器整体运行
+
+    ```
+    #user administrator administrators;  #配置用户或者组，默认为nobody nobody。
+    #worker_processes 2;  #允许生成的进程数，默认为1
+    #pid /nginx/pid/nginx.pid;   #指定nginx进程运行文件存放地址
+    error_log log/error.log debug;  #制定日志路径，级别。这个设置可以放入全局块，http块，server块，级别以此为：debug|info|notice|warn|error|crit|alert|emerg
+    ```
+
+    
+
+  - events块：影响服务器与用户的网络连接
+
+    ```
+    events {
+        accept_mutex on;   #设置网路连接序列化，防止惊群现象发生，默认为on
+        multi_accept on;  #设置一个进程是否同时接受多个网络连接，默认为off
+        #use epoll;      #事件驱动模型，select|poll|kqueue|epoll|resig|/dev/poll|eventport
+        worker_connections  1024;    #最大连接数，默认为512
+    }
+    ```
+
+    
+
+  - http块：可以包含多个server块
+
+    - http全局块：
+
+      ```
+      include       mime.types;   #文件扩展名与文件类型映射表
+          default_type  application/octet-stream; #默认文件类型，默认为text/plain
+          #access_log off; #取消服务日志    
+          log_format myFormat '$remote_addr–$remote_user [$time_local] $request $status $body_bytes_sent $http_referer $http_user_agent $http_x_forwarded_for'; #自定义格式
+          access_log log/access.log myFormat;  #combined为日志格式的默认值
+          sendfile on;   #允许sendfile方式传输文件，默认为off，可以在http块，server块，location块。
+          sendfile_max_chunk 100k;  #每个进程每次调用传输数量不能大于设定的值，默认为0，即不设上限。
+          keepalive_timeout 65;  #连接超时时间，默认为75s，可以在http，server，location块。
+      
+          upstream mysvr {   
+            server 127.0.0.1:7878;
+            server 192.168.10.121:3333 backup;  #热备
+          }
+          error_page 404 https://www.baidu.com; #错误页
+      ```
+
+      
+
+    - server块：每个server块就相当于一个虚拟主机，一个server可包含多个location
+
+      ```
+          server {
+              keepalive_requests 120; #单连接请求上限次数。
+              listen       4545;   #监听端口
+              server_name  127.0.0.1;   #监听地址       
+              location  ~*^.+$ {       #请求的url过滤，正则匹配，~为区分大小写，~*为不区分大小写。
+                 #root path;  #根目录
+                 #index vv.txt;  #设置默认页
+                 proxy_pass  http://mysvr;  #请求转向mysvr 定义的服务器列表
+                 deny 127.0.0.1;  #拒绝的ip
+                 allow 172.18.5.54; #允许的ip           
+              } 
+          }
+      ```
+
+      
+
+    
+
+# 配置实例
+
+#### 正向代理
+
+- 客户端配置了正向代理服务器来访问internet
+
+#### 反向代理
+
+- 服务器使用了反向代理，客户端访问反向代理
+
+- 直接转发
+
+  ```
+  location / {
+  			proxy_pass	http://127.0.0.1:3000/;
+          }
+  ```
+
+  
+
+- 根据路径名转发
+
+  ```
+  location ~ /nav/ {
+  			proxy_pass	http://127.0.0.1:3000/;
+          }
+  location ~ /api/ {
+  			proxy_pass	http://127.0.0.1:4000/;
+          }
+  ```
+
+  
+
+#### 负载均衡
+
+- 反向代理服务器将客户端的多个请求分发到多个服务器上
+
+  ```
+  http {
+  ...
+  	upstream myserver{
+  		ip_hash;
+  		server 115.28.52.63:8080 weight=1;
+  		server 115.28.52.63:8080 weight=1;
+  		fair;
+  	}
+  ...	
+  	server{
+  		location / {
+  			...
+  			proxy_pass http://myserver;
+  			proxy_connect_timeout 10;
+  		}
+  	}
+  }
+  ```
+
+  
+
+- 分配策略：
+
+  - 轮询（默认）：每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉则自动剔除
+  - weight：权重，默认为1，权重越高被分配的客户端越多
+  - ip_hash：每个请求按访问IP的hash分配，则每个访客固定访问一个后端服务器，可解决session问题
+  - fair（第三方）：按后端服务器的响应时间来分配请求，响应时间越短的优先分配
+
+#### 动静分离
+
+- 将动态资源和静态资源分别放置在不同服务器
+- 两种方案
+  - （最优）动态服务器和静态服务器分离
+  - 动态和静态文件混合在一起，通过nginx分开
+
+#### 高可用集群
+
+- 当主nginx服务器宕机后自动使用备份nginx服务器
+- 用keepalived软件把主nginx和备份nginx的ip绑定到一个虚拟的ip上，并且keepalived自动监控是否宕机
+
+# nginx原理
+
+- master和worker

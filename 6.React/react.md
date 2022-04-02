@@ -202,7 +202,9 @@
 
    `"proxy": "http://xxxxxx"`
 
+#### config-overrides.js
 
+- 配合react-app-rewired第三方包来自定义webpack配置项
 
 ## 路由
 
@@ -220,19 +222,21 @@
    </BrowserRouter>
    ```
 
+   - 所有的引用（Link、Route、 Switch、 Redirect）都必须在BrowserRouter标签所包裹的组件中
+
    - `exact`精确匹配
 
    - `Switch`只匹配组件1和2其中的一个
 
    - 单击跳转
-
+   
      ```jsx
      import { Link } from 'react-router-dom'
      <Link to='/'>
          组件/标签
-     </Link>
+    </Link>
      ```
-
+   
    
    - 标签式重定向
    
@@ -246,12 +250,36 @@
      this.props.history.push('/')
      ```
    
-3. 获取路由信息
+3. 站外链接跳转
 
-   - `this.props.location`匹配``
-   - `this.props.match.params.id`匹配`/:id`
+   - 本页跳转
+   
+     ```
+     window.location.href="http://"
+     ```
+   
+   - 新页跳转
+   
+     ```
+     window.open('http://')
+     ```
+   
+4. 获取路由信息
 
+   - 路由子组件：
+     - `this.props.location`匹配`?id=`
+     - `this.props.match.params.id`匹配`/:id`
 
+   - 非路子组件
+
+     ```
+     import { withRouter } from 'react-router-dom'
+     ...
+     export default withRouter(Header)
+     //这样才能使用this.props.location和`this.props.match.params
+     ```
+
+     
 
 ## 组件
 
@@ -405,28 +433,62 @@ shouldComponentUpdate(nextProps, nextState) {
 
 - 访问一个页面才加载该页面的`JS`，而不是点击首页就把整个网站`JS`加载完
 
-- 在组建文件夹下新建`loadable.js`
+- 单文件处理
 
-  ```js
-  import React from 'react';
-  import Loadable from 'react-loadable';
-  const LoadableComponent = Loadable({
-      loader: () => import('./'),
-      loading () {
-          return <div>正在加载</div>
-      }
-  });
-  export default () => <LoadableComponent />
-  ```
+  - 在组建文件夹下新建`loadable.js`
+  
+    ```js
+    import React from 'react';
+    import Loadable from 'react-loadable';
+    const LoadableComponent = Loadable({
+        loader: () => import('./'),
+        loading () {
+            return <div>正在加载</div>
+        }
+    });
+    export default () => <LoadableComponent />
+    ```
+  
+  - 在调用组件的app.js里更改调用异步组件
+  
+    ```js
+    import Xxxx from './xxx/loadable.js'
+    ```
+  
+  - 包装后原组件从`router`引用组件信息会报错，需从`react-router-dom`引入`withRouter`方法，并在导出时`withRouter(组件)`
 
+- 统一处理
 
-- 在调用组件的app.js里更改调用异步组件
+  -  新建文件 /src/utils/loadable.js 
 
-  ```js
-  import Xxxx from './xxx/loadable.js'
-  ```
+    ```js
+    import React from 'react';
+    import Loadable from 'react-loadable';
+    
+    export default (loader) => {
+        return Loadable({
+            loader,
+            loading() {
+                return <div>正在加载</div>
+            },
+        });
+    }
+    ```
 
-- 包装后原组件从`router`引用组件信息会报错，需从`react-router-dom`引入`withRouter`方法，并在导出时`withRouter(组件)`
+  - 在app.js
+
+    ```js
+    import loadable from './utils/loadable';
+    import Header from './common/header'; 
+    
+    <!--异步加载组件-->
+    const Home = loadable(() => import('./pages/home'));
+    const Detail = loadable(() => import('./pages/detail'));
+    const Login = loadable(() => import('./pages/login'));
+    const Write = loadable(() => import('./pages/write'));
+    ```
+
+    
 
 ## 过渡动画
 
@@ -472,7 +534,7 @@ shouldComponentUpdate(nextProps, nextState) {
     	in={this.state.show}	//动画触发开关，在map渲染中去掉
     	timeout={1000}	//动画时间
     	className='fade'	//css样式前缀
-  	appear={true}	//已有的第一次出现也添加动画，可选
+  		appear={true}	//已有的第一次出现也添加动画，可选
     	unmountOnExit	//隐藏时直接从dom删除，可选
     	钩子={函数}	//
     >
@@ -842,8 +904,10 @@ export default (state = defaultState, action) => {
 - 使用`babel-plugin-import`
 
   - 用于按需加载组件代码和样式的 `babel` 插件
+  - 可以让引入的第三方库用import { Buttom } from 'antd'的形式按需加载Buttom的代码和样式
 
   ```
+  //config-overrides.js
   const { override, fixBabelImports } = require('customize-cra');
   
   module.exports = override(
@@ -893,6 +957,8 @@ export default (state = defaultState, action) => {
 
 
 #### useState
+
+-  之前的 this.setState做的是合并状态后返回一个新状态，而 useState是直接替换老状态后返回新状态 
 
 - 用函数的形式代替原来的继承类的形式，并且使用预函数的形式管理`state`，不再使用类的形式定义组件
 
@@ -1034,13 +1100,22 @@ export default (state = defaultState, action) => {
 
 #### useMemo
 
+```js
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b])
+```
 
+- 优化性能，阻止父组件重新渲染时子组件也会重新渲染
+- 第一个参数为创建子虚减的函数
+- 第二个参数为依赖项数组，当某个依赖项改变时才会重新渲染
+- 如果没有依赖项数组，每次渲染时都会计算新的值
 
 
 
 #### useRef
 
-
+- 第一种用法： `useRef` 返回一个可变的 ref 对象，其 `.current` 属性被初始化为传入的参数（`initialValue`）。返回的 ref 对象在组件的整个生命周期内保持不变 
+- 第二种用法： 将 ref 对象以  ` <div ref={myRef} />  ` 形式传入组件，则无论该节点如何改变，React 都会将 ref 对象的 `.current` 属性设置为相应的 DOM 节点 
+-  变更 `.current` 属性不会引发组件重新渲染。如果想要在 React 绑定或解绑 DOM 节点的 ref 时运行某些代码，则需要使用回调 ref来实现 
 
 
 

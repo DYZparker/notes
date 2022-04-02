@@ -255,3 +255,240 @@ list-style 缩写：无顺序，空格隔开，image会覆盖type
 
 
 ## 表单
+
+### type属性
+
+- text文本框
+- password密码框
+- file上传文件
+- checkbox复选
+- radio单选
+- button按钮
+- submit提交
+- reset重置
+- hidden隐藏域
+- image图像提交域（多src属性）
+- 新增
+
+  - color  颜色
+  - date  日期
+  - datetime  UTC时间
+  - datetime-local  无时区的日期和时间
+  - email  邮件地址
+  - month  月份
+  - number  数值
+
+    - disabled	规定输入字段是禁用的
+    - max	             规定允许的最大值
+    - maxlength	规定输入字段的最大字符长度
+    - min	             规定允许的最小值
+    - pattern	             规定用于验证输入字段的模式
+    - readonly	规定输入字段的值无法修改
+    - required	规定输入字段的值是必需的
+    - size	             规定输入字段中的可见字符数
+    - step	             规定输入字段的合法数字间隔
+    - value            	规定输入字段的默认值
+
+  - range  滑块
+
+    - max - 规定允许的最大值
+    - min - 规定允许的最小值
+    - step - 规定合法的数字间隔
+    - value - 规定默认值
+
+  - search  搜索域
+  - tel  电话号码
+  - time  无时区时间
+  - url  URL地址
+  - week  周和年
+
+### 其他属性
+
+1. name属性
+
+2. maxlength属性
+
+   用户输入最大长度
+
+3. size属性
+
+   文本框宽度
+
+4. value属性
+
+   文本框默认值（点击不消失），传入服务器的值
+
+5. placeholder属性
+
+   填写字段提示（点击消失）
+
+6. required="required"属性
+
+   必须填入内容
+
+7. disabled="disabled"属性
+
+   该元素不可更改
+
+8. checked="checked"属性
+
+   默认选择项
+
+### 新增属性
+
+- autocomplete
+
+  - form 或 input 域有自动完成功能
+
+- autofocus
+
+  - 页面加载时，域自动地获得焦点
+
+- form
+
+  - 规定输入域所属的一个或多个表单
+  - 如需引用一个以上的表单，使用空格分隔的列表
+
+- formaction
+
+  - 用于描述表单提交的URL地址
+  - 用于 type="submit" 和 type="image"
+  - 会覆盖<form> 元素中的action属性
+
+- formenctype
+
+  - 描述了表单提交到服务器的数据编码
+  - 只对form表单中 method="post" 表单
+  - 用于 type="submit" 和 type="image"
+  - 覆盖 form 元素的 enctype 属性
+
+- formmethod
+
+  - 定义了表单提交的方式
+  - 用于 type="submit" 和 type="image"
+  - 覆盖了 <form> 元素的 method 属性
+
+- formnovalidate
+
+  - 布尔值
+  - 描述了 <input> 元素在表单提交时无需被验证
+  - 属性与type="submit一起使用
+  - 覆盖 <form> 元素的novalidate属性
+
+- formtarget
+
+  - 指定一个名称或一个关键字来指明表单提交数据接收后的展示
+  - 用于 type="submit" 和 type="image"
+  - 覆盖 <form>元素的target属性
+
+- height 与 width
+
+  - 规定用于 image 类型的 <input> 标签的图像高度和宽度
+
+- list
+
+  - 规定输入域的 datalist
+
+- min 与 max与step
+
+  - 用于为包含数字或日期的 input 类型规定限定（约束）
+  - 适用类型的 <input> 标签：date、pickers、number 以及 range
+
+- multiple
+
+  - 布尔值
+  - 规定<input> 元素中可选择多个值
+  - 适用类型的 <input> 标签：email 和 file
+
+- pattern (regexp)
+
+  - 描述了一个正则表达式用于验证 <input> 元素的值
+  - 适用类型的<input> 标签: text, search, url, tel, email, 和 password
+
+- placeholder
+
+  - 提供一种提示（hint），描述输入域所期待的值
+  - 适用类型的<input> 标签: text, search, url, tel, email, 和 password
+
+- required
+
+  - 布尔值
+  - 规定必须在提交之前填写输入域（不能为空）
+  - 适用类型的<input> 标签：text, search, url, telephone, email, password, date pickers, number, checkbox, radio 以及 file
+
+### 表单属性
+
+1. enctype在发送表单数据之间如何对其进行编码
+
+2. target在何处打开action URL
+
+- _blank
+- _self
+- _parent
+- _top
+
+3. method提交方法
+
+- get
+- post
+
+4. name表单名称
+
+5. action表单提交地址
+
+6. optgroup下拉菜单和列表项目分组标签（多label属性）
+
+7. option下拉菜单和列表项目标签
+
+- value属性传入服务器的值
+- selected="selected"属性默认选择项
+
+8. autocomplete
+
+- form 或 input 域有自动完成功能
+
+9. novalidate
+
+- 布尔值
+- 在提交表单时不应该验证 form 或 input 域
+
+### 表单元素
+
+1. `<label>`标签定义标注
+
+- `<label>姓名：<input ...></label>`
+- `<label for="x">姓名：</label><input type="text" name="username" id="x">`
+
+2. `<textarea>`
+
+- name属性
+- rows属性设置可见行数
+- cols属性设置可见宽度
+- placeholder属性设置提示值
+
+3. `<select>`
+
+- name属性
+- size属性设置列表中可见选项的数目
+- multiple属性设置可选择多个选项
+
+4. `<datalist>`
+
+- 规定输入域的选项列表
+
+- ```html
+  <input list="browsers" name="browser">
+  <datalist id="browsers">
+    <option value="Internet Explorer">
+    <option value="Firefox">
+    <option value="Chrome">
+  </datalist>
+  ```
+
+5. `<keygen>`
+
+- 提供一种验证用户的可靠方法
+
+6. `<output>`
+
+- 用于不同类型的输出
